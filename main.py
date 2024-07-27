@@ -1,15 +1,7 @@
 import os
-import microphone_stream as ms 
 import pvporcupine
-import wave
+import microphone_stream as ms
 from dotenv import load_dotenv
-
-def write_audio_file(filename: str, audio_content: object, sample_rate: int):
-    with wave.open(filename, 'wb') as wf: 
-        wf.setnchannels(1)
-        wf.setsamplewidth(2)
-        wf.setframerate(sample_rate)
-        wf.writeframes(audio_content)
     
 def main() -> None:
     load_dotenv()
