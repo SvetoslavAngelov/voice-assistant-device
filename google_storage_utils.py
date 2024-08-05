@@ -2,7 +2,6 @@ import os
 import io
 from google.cloud import storage
 from google.oauth2 import service_account
-from typing import Any
 
 def auth_service_account():
     GOOGLE_APPLICATION_CREDENTIALS = os.getenv('GOOGLE_APPLICATION_CREDENTIALS')
@@ -11,7 +10,7 @@ def auth_service_account():
     project = credentials.project_id
     return scoped_credentials, project
 
-def upload_audio_file(auth: tuple[service_account.Credentials, Any | None], bucket_name: str, audio_buffer: str, destination_blob_name: str): 
+def upload_audio_file(auth: object, bucket_name: str, audio_buffer: str, destination_blob_name: str): 
     credentials, project = auth
     client = storage.Client(project=project, credentials=credentials)
     bucket = client.bucket(bucket_name)
