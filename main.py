@@ -1,12 +1,17 @@
 import os
 import pvporcupine
+import numpy as np
 import microphone_stream as ms
 from dotenv import load_dotenv
+from audio_utils import write_audio_file
+from google_storage_utils import auth_service_account, upload_audio_file
     
 def main() -> None:
     load_dotenv()
 
     PORCUPINE_ACCESS_KEY = os.getenv('PORCUPINE_ACCESS_KEY')
+    GCS_BUCKET_NAME = os.getenv('GCS_BUCKET_NAME')
+    GOOGLE_APPLICATION_CREDENTIALS = auth_service_account()
 
     porcupine = pvporcupine.create(
         access_key=PORCUPINE_ACCESS_KEY,
@@ -14,11 +19,25 @@ def main() -> None:
      )
     
     with ms.MicrophoneStream(porcupine.sample_rate, porcupine.frame_length) as stream: 
+
+        audio_buffer = []
+        isRecording = False
+
         for audio_chunk in stream.generator():
             keyword_index = porcupine.process(audio_chunk)
 
             if keyword_index >= 0: 
                 print('Wake up word detected\n')
+                isRecording = True
+
+            if isRecording and len(audio_buffer) < 63:
+                audio_buffer.append(audio_chunk)
+            else: 
+                packed_audio = b''.join([np.array(chunk, dtype=np.int16).tobytes() for chunk in audio_buffer])
+                audio_recording = write_audio_file(packed_audio, porcupine.sample_rate)
+                upload_audio_file(GOOGLE_APPLICATION_CREDENTIALS, GCS_BUCKET_NAME, audio_recording, 'test_recording.wav')
+                audio_buffer = []
+                isRecording = False
 
 if __name__ == "__main__":
     main()
