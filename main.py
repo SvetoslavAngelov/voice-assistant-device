@@ -7,6 +7,11 @@ from audio_utils import write_audio_file
 from google_storage_utils import auth_service_account, upload_audio_file
     
 def main() -> None:
+    """
+    Main function to initialize Porcupine, capture audio, and upload it to Google Cloud Storage
+    when a wake word is detected.
+    """
+
     load_dotenv()
 
     PORCUPINE_ACCESS_KEY = os.getenv('PORCUPINE_ACCESS_KEY')
@@ -17,27 +22,35 @@ def main() -> None:
         access_key=PORCUPINE_ACCESS_KEY,
         keywords=['picovoice'] 
      )
+
+    # Fill the buffer with 4 seconds at 16000 bit rate and a frame length of 512 bits
+    BUFFER_SIZE = ( porcupine.sample_rate * 4 )/ porcupine.frame_length
     
     with ms.MicrophoneStream(porcupine.sample_rate, porcupine.frame_length) as stream: 
 
         audio_buffer = []
-        isRecording = False
+        is_recording = False
 
         for audio_chunk in stream.generator():
             keyword_index = porcupine.process(audio_chunk)
 
             if keyword_index >= 0: 
                 print('Wake up word detected\n')
-                isRecording = True
+                is_recording = True
 
-            if isRecording and len(audio_buffer) < 63:
-                audio_buffer.append(audio_chunk)
-            else: 
-                packed_audio = b''.join([np.array(chunk, dtype=np.int16).tobytes() for chunk in audio_buffer])
-                audio_recording = write_audio_file(packed_audio, porcupine.sample_rate)
-                upload_audio_file(GOOGLE_APPLICATION_CREDENTIALS, GCS_BUCKET_NAME, audio_recording, 'test_recording.wav')
-                audio_buffer = []
-                isRecording = False
+            if is_recording:
+                if len(audio_buffer) < BUFFER_SIZE:
+                    audio_buffer.append(audio_chunk)
+                else: 
+                    packed_audio = b''.join([np.array(chunk, dtype=np.int16).tobytes() for chunk in audio_buffer])
+                    audio_recording = write_audio_file(packed_audio, porcupine.sample_rate)
+                    try:
+                        upload_audio_file(GOOGLE_APPLICATION_CREDENTIALS, GCS_BUCKET_NAME, audio_recording, 'test_recording.wav')
+                    except Exception as e:
+                        print(f'{e}')
+
+                    audio_buffer = []
+                    is_recording = False
 
 if __name__ == "__main__":
     main()
