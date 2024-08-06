@@ -1,6 +1,6 @@
 import pyaudio
 import numpy as np
-from typing import List
+from typing import Generator, List
 
 class MicrophoneStream:
     """
@@ -34,7 +34,7 @@ class MicrophoneStream:
         self.audio_stream.close()
         self.audio_interface.terminate() 
 
-    def generator(self: object) -> List[int]:
+    def generator(self: object) -> Generator[List[int], None, None]:
         while True: 
             frame = self.audio_stream.read(self.frame_length)
             audio_chunk = np.frombuffer(frame, dtype=np.int16).tolist()
