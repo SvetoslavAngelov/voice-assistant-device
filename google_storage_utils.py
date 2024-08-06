@@ -10,7 +10,7 @@ def auth_service_account():
     project = credentials.project_id
     return scoped_credentials, project
 
-def upload_audio_file(auth: object, bucket_name: str, audio_buffer: str, destination_blob_name: str): 
+def upload_audio_file(auth: object, bucket_name: str, audio_buffer: object, destination_blob_name: str): 
     credentials, project = auth
     client = storage.Client(project=project, credentials=credentials)
     bucket = client.bucket(bucket_name)
