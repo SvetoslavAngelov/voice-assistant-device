@@ -14,7 +14,7 @@ def write_audio_file(audio_buffer: str, sample_rate: int) -> str:
 
     with wave.open(output, 'wb') as wf: 
         wf.setnchannels(1)
-        wf.setsamplewidth(2)
+        wf.setsampwidth(2)
         wf.setframerate(sample_rate)
         wf.writeframes(audio_buffer)
 
