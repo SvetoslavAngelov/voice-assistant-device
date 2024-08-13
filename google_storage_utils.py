@@ -10,13 +10,16 @@ def auth_service_account():
     project = credentials.project_id
     return scoped_credentials, project
 
-def upload_audio_file(auth: object, bucket_name: str, audio_buffer: object, destination_blob_name: str): 
+async def upload_audio_file(auth: object, bucket_name: str, audio_buffer: object, destination_blob_name: str): 
     credentials, project = auth
     client = storage.Client(project=project, credentials=credentials)
     bucket = client.bucket(bucket_name)
     blob = bucket.blob(destination_blob_name)
 
     wav_file = io.BytesIO(audio_buffer)
-    blob.upload_from_file(wav_file, content_type='audio/wav')
 
-    print(f'File {destination_blob_name} uploaded to {bucket_name}')
+    try:
+        blob.upload_from_file(wav_file, content_type='audio/wav')
+        print(f'File {destination_blob_name} uploaded to {bucket_name}')
+    except Exception as e:
+        print(f'{e}')
