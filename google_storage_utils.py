@@ -19,7 +19,7 @@ async def upload_audio_file(auth: object, bucket_name: str, audio_buffer: object
     wav_file = io.BytesIO(audio_buffer)
 
     try:
-        blob.upload_from_file(wav_file, content_type='audio/wav')
+        await blob.upload_from_file(wav_file, content_type='audio/wav')
         print(f'File {destination_blob_name} uploaded to {bucket_name}')
     except Exception as e:
         print(f'{e}')
