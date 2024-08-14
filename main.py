@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 from audio_utils import write_audio_file
 from google_storage_utils import auth_service_account, upload_audio_file
     
-async def main() -> None:
+def main() -> None:
     """
     Main function to initialize Porcupine, capture audio, and upload it to Google Cloud Storage
     when a wake word is detected.
@@ -45,9 +45,9 @@ async def main() -> None:
                 if len(audio_buffer) >= BUFFER_SIZE:
                     packed_audio = b''.join([np.array(chunk, dtype=np.int16).tobytes() for chunk in audio_buffer])
                     audio_recording = write_audio_file(packed_audio, porcupine.sample_rate)
-                    asyncio.create_task(upload_audio_file(GOOGLE_APPLICATION_CREDENTIALS, GCS_BUCKET_NAME, audio_recording, 'test_recording.wav'))
+                    #upload_audio_file(GOOGLE_APPLICATION_CREDENTIALS, GCS_BUCKET_NAME, audio_recording, 'test_recording.wav')
                     audio_buffer = []
                     is_recording = False
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    main()
