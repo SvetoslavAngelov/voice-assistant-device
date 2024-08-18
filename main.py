@@ -24,7 +24,7 @@ def main() -> None:
      )
 
     # Fill the buffer with 4 seconds at 16000 bit rate and a frame length of 512 bits
-    BUFFER_SIZE = ( porcupine.sample_rate * 4 )/ porcupine.frame_length
+    BUFFER_SIZE = int(( porcupine.sample_rate * 4 )/ porcupine.frame_length)
     
     with ms.MicrophoneStream(porcupine.sample_rate, porcupine.frame_length) as stream: 
 
@@ -39,16 +39,12 @@ def main() -> None:
                 is_recording = True
 
             if is_recording:
-                if len(audio_buffer) < BUFFER_SIZE:
-                    audio_buffer.append(audio_chunk)
-                else: 
+                audio_buffer.append(audio_chunk)
+
+                if len(audio_buffer) >= BUFFER_SIZE:
                     packed_audio = b''.join([np.array(chunk, dtype=np.int16).tobytes() for chunk in audio_buffer])
                     audio_recording = write_audio_file(packed_audio, porcupine.sample_rate)
-                    try:
-                        upload_audio_file(GOOGLE_APPLICATION_CREDENTIALS, GCS_BUCKET_NAME, audio_recording, 'test_recording.wav')
-                    except Exception as e:
-                        print(f'{e}')
-
+                    upload_audio_file(GOOGLE_APPLICATION_CREDENTIALS, GCS_BUCKET_NAME, audio_recording, 'test_recording.wav')
                     audio_buffer = []
                     is_recording = False
 

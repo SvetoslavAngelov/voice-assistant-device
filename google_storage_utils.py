@@ -17,6 +17,9 @@ def upload_audio_file(auth: object, bucket_name: str, audio_buffer: object, dest
     blob = bucket.blob(destination_blob_name)
 
     wav_file = io.BytesIO(audio_buffer)
-    blob.upload_from_file(wav_file, content_type='audio/wav')
-
-    print(f'File {destination_blob_name} uploaded to {bucket_name}')
+    
+    try:
+        blob.upload_from_file(wav_file, content_type='audio/wav')
+        print(f'File {destination_blob_name} uploaded to {bucket_name}')
+    except Exception as e:
+        print(f'{e}')
