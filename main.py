@@ -38,6 +38,9 @@ def main() -> None:
             if keyword_index >= 0: 
                 print('Wake up word detected\n')
                 is_recording = True
+                
+                # Reset keyword index
+                keyword_index = -1
 
             if is_recording:
                 audio_buffer.append(audio_chunk)

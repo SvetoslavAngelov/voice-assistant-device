@@ -38,5 +38,4 @@ class MicrophoneStream:
         while True: 
             frame = self.audio_stream.read(self.frame_length)
             audio_chunk = np.frombuffer(frame, dtype=np.int16).tolist()
-            print(f'Audio chunk size is {len(audio_chunk)}')
             yield audio_chunk
