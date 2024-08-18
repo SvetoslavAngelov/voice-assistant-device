@@ -1,5 +1,4 @@
 import os
-import asyncio
 import pvporcupine
 import numpy as np
 import microphone_stream as ms
@@ -26,11 +25,11 @@ def main() -> None:
 
     # Fill the buffer with 4 seconds at 16000 bit rate and a frame length of 512 bits
     BUFFER_SIZE = int(( porcupine.sample_rate * 4 )/ porcupine.frame_length)
-
-    audio_buffer = []
-    is_recording = False
     
     with ms.MicrophoneStream(porcupine.sample_rate, porcupine.frame_length) as stream: 
+
+        audio_buffer = []
+        is_recording = False
 
         for audio_chunk in stream.generator():
             keyword_index = porcupine.process(audio_chunk)
@@ -45,7 +44,7 @@ def main() -> None:
                 if len(audio_buffer) >= BUFFER_SIZE:
                     packed_audio = b''.join([np.array(chunk, dtype=np.int16).tobytes() for chunk in audio_buffer])
                     audio_recording = write_audio_file(packed_audio, porcupine.sample_rate)
-                    #upload_audio_file(GOOGLE_APPLICATION_CREDENTIALS, GCS_BUCKET_NAME, audio_recording, 'test_recording.wav')
+                    upload_audio_file(GOOGLE_APPLICATION_CREDENTIALS, GCS_BUCKET_NAME, audio_recording, 'test_recording.wav')
                     audio_buffer = []
                     is_recording = False
 
