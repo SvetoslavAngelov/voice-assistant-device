@@ -26,11 +26,11 @@ def main() -> None:
 
     # Fill the buffer with 4 seconds at 16000 bit rate and a frame length of 512 bits
     BUFFER_SIZE = int(( porcupine.sample_rate * 4 )/ porcupine.frame_length)
+
+    audio_buffer = []
+    is_recording = False
     
     with ms.MicrophoneStream(porcupine.sample_rate, porcupine.frame_length) as stream: 
-
-        audio_buffer = []
-        is_recording = False
 
         for audio_chunk in stream.generator():
             keyword_index = porcupine.process(audio_chunk)
@@ -38,9 +38,6 @@ def main() -> None:
             if keyword_index >= 0: 
                 print('Wake up word detected\n')
                 is_recording = True
-                
-                # Reset keyword index
-                keyword_index = -1
 
             if is_recording:
                 audio_buffer.append(audio_chunk)
