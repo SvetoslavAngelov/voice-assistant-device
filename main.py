@@ -53,7 +53,7 @@ def main() -> None:
 
                 if len(audio_buffer) >= BUFFER_SIZE:
                     t = Thread(target=process_and_upload_recording, args=[GOOGLE_APPLICATION_CREDENTIALS, GCS_BUCKET_NAME, audio_buffer, porcupine.sample_rate])
-                    t.run()
+                    t.start()
                     audio_buffer = []
                     is_recording = False
 
