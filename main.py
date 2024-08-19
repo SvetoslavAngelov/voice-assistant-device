@@ -42,9 +42,12 @@ def main() -> None:
                 audio_buffer.append(audio_chunk)
 
                 if len(audio_buffer) >= BUFFER_SIZE:
+                    print('Audio file upploaded\n')
+                    '''
                     packed_audio = b''.join([np.array(chunk, dtype=np.int16).tobytes() for chunk in audio_buffer])
                     audio_recording = write_audio_file(packed_audio, porcupine.sample_rate)
                     upload_audio_file(GOOGLE_APPLICATION_CREDENTIALS, GCS_BUCKET_NAME, audio_recording, 'test_recording.wav')
+                    '''
                     audio_buffer = []
                     is_recording = False
 
