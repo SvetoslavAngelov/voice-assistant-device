@@ -52,8 +52,7 @@ def main() -> None:
                 audio_buffer.append(audio_chunk)
 
                 if len(audio_buffer) >= BUFFER_SIZE:
-                    t = Thread(target=process_and_upload_recording, args=[GOOGLE_APPLICATION_CREDENTIALS, GCS_BUCKET_NAME, audio_buffer, porcupine.sample_rate])
-                    t.start()
+                    packed_audio = b''.join([np.array(chunk, dtype=np.int16).tobytes() for chunk in audio_buffer])
                     audio_buffer = []
                     is_recording = False
 
