@@ -2,9 +2,19 @@ import os
 import pvporcupine
 import numpy as np
 import microphone_stream as ms
+from threading import Thread
 from dotenv import load_dotenv
 from audio_utils import write_audio_file
 from google_storage_utils import auth_service_account, upload_audio_file
+
+def process_and_upload_recording(auth: object, bucket_name: str, audio_buffer: object, sample_rate: int):
+    """
+    Converts a list of audio chunks into a byte buffer, which is then converted into a *.wav byte buffer
+    and uploaded to GCP. 
+    """
+    packed_audio = b''.join([np.array(chunk, dtype=np.int16).tobytes() for chunk in audio_buffer])
+    audio_recording = write_audio_file(packed_audio, sample_rate)
+    upload_audio_file(auth, bucket_name, audio_recording, 'test_recording.wav')
     
 def main() -> None:
     """
@@ -42,12 +52,8 @@ def main() -> None:
                 audio_buffer.append(audio_chunk)
 
                 if len(audio_buffer) >= BUFFER_SIZE:
-                    print('Audio file upploaded\n')
-                    '''
-                    packed_audio = b''.join([np.array(chunk, dtype=np.int16).tobytes() for chunk in audio_buffer])
-                    audio_recording = write_audio_file(packed_audio, porcupine.sample_rate)
-                    upload_audio_file(GOOGLE_APPLICATION_CREDENTIALS, GCS_BUCKET_NAME, audio_recording, 'test_recording.wav')
-                    '''
+                    t = Thread(target=process_and_upload_recording, args=[GOOGLE_APPLICATION_CREDENTIALS, GCS_BUCKET_NAME, audio_buffer, porcupine.sample_rate])
+                    t.run()
                     audio_buffer = []
                     is_recording = False
 
